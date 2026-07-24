@@ -54,6 +54,7 @@
       box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
     }
 
+    /* Category Buttons Container */
     .category-container {
       display: flex;
       justify-content: center;
@@ -76,6 +77,20 @@
 
     .cat-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
     .cat-btn.active { background-color: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
+
+    /* 더보기/접기 전용 버튼 스타일 */
+    .more-btn {
+      background-color: transparent;
+      border: 1px dashed var(--text-muted);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .more-btn:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background-color: rgba(13, 110, 253, 0.05);
+    }
 
     .site-grid {
       display: grid;
@@ -152,6 +167,10 @@
     let categories = [];
     let sites = [];
     let currentCategoryId = 'all';
+    
+    // 카테고리 더보기 설정
+    let isCategoryExpanded = false;
+    const MAX_VISIBLE_CATEGORIES = 6; // 기본적으로 보여줄 카테고리 개수 (전체 버튼 포함)
 
     const siteGrid = document.getElementById('siteGrid');
     const searchInput = document.getElementById('searchInput');
@@ -164,10 +183,10 @@
       fetch('sites.json').then(res => res.json())
     ])
     .then(([catData, siteData]) => {
-      categories = catData.sort((a, b) => a.order - b.order);
+      categories = catData.sort((a, b) => (a.order || 0) - (b.order || 0));
       sites = siteData;
 
-      initCategoryButtons();
+      renderCategoryButtons();
       filterAndRender();
     })
     .catch(error => {
@@ -175,35 +194,54 @@
       siteGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">데이터(JSON)를 불러오는 중 오류가 발생했습니다.</p>';
     });
 
-    // 2. 카테고리 버튼 생성
-    function initCategoryButtons() {
+    // 2. 카테고리 버튼 생성 (더보기 기능 포함)
+    function renderCategoryButtons() {
       categoryContainer.innerHTML = '';
 
-      const allBtn = createCatButton('all', '전체', true);
-      categoryContainer.appendChild(allBtn);
+      // '전체' 카테고리 기본 생성
+      const allCategoryList = [{ id: 'all', name: '전체' }, ...categories];
+      
+      // 보여줄 카테고리 개수 결정
+      let visibleCategories = allCategoryList;
+      const needsMoreButton = allCategoryList.length > MAX_VISIBLE_CATEGORIES;
 
-      categories.forEach(cat => {
-        const btn = createCatButton(cat.id, cat.name, false);
+      if (needsMoreButton && !isCategoryExpanded) {
+        visibleCategories = allCategoryList.slice(0, MAX_VISIBLE_CATEGORIES);
+      }
+
+      // 버튼 출력
+      visibleCategories.forEach(cat => {
+        const btn = document.createElement('button');
+        const isSelected = String(cat.id).trim().toLowerCase() === String(currentCategoryId).trim().toLowerCase();
+        
+        btn.className = `cat-btn ${isSelected ? 'active' : ''}`;
+        btn.textContent = cat.name;
+
+        btn.addEventListener('click', () => {
+          currentCategoryId = cat.id;
+          renderCategoryButtons(); // 선택 상태 업데이트를 위해 버튼 재렌더링
+          filterAndRender();
+        });
+
         categoryContainer.appendChild(btn);
       });
+
+      // 더보기 / 접기 버튼 추가
+      if (needsMoreButton) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'cat-btn more-btn';
+        toggleBtn.textContent = isCategoryExpanded ? '- 접기' : `+ 더보기 (${allCategoryList.length - MAX_VISIBLE_CATEGORIES})`;
+        
+        toggleBtn.addEventListener('click', () => {
+          isCategoryExpanded = !isCategoryExpanded;
+          renderCategoryButtons();
+        });
+
+        categoryContainer.appendChild(toggleBtn);
+      }
     }
 
-    function createCatButton(id, name, isActive) {
-      const btn = document.createElement('button');
-      btn.className = `cat-btn ${isActive ? 'active' : ''}`;
-      btn.textContent = name;
-
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentCategoryId = id;
-        filterAndRender();
-      });
-
-      return btn;
-    }
-
-    // 헬퍼 함수: icon 값이 없을 때 사이트 URL에서 Google Favicon URL 추출
+    // 헬퍼 함수: 아이콘 URL 보정
     function getFaviconUrl(site) {
       if (site.icon && site.icon.trim() !== '') {
         return site.icon.trim();
@@ -234,7 +272,6 @@
         card.target = '_blank';
         card.rel = 'noopener noreferrer';
 
-        // 아이콘 URL 결정 (공백 체크)
         const iconSrc = getFaviconUrl(site);
 
         card.innerHTML = `
@@ -243,24 +280,30 @@
               <img src="${iconSrc}" alt="${site.name} 파비콘" class="site-icon" onerror="this.src='https://via.placeholder.com/24?text=W'">
               <span class="site-title">${site.name}</span>
             </div>
-            <p class="site-desc">${site.desc}</p>
+            <p class="site-desc">${site.desc || ''}</p>
           </div>
-          <span class="site-tag">#${site.tag}</span>
+          <span class="site-tag">#${site.tag || '기타'}</span>
         `;
 
         siteGrid.appendChild(card);
       });
     }
 
-    // 4. 복합 필터링 (카테고리 ID + 검색어)
+    // 4. 카테고리 및 검색어 완벽 매칭 필터링
     function filterAndRender() {
       const query = searchInput.value.toLowerCase().trim();
 
       const filtered = sites.filter(site => {
-        const matchesCategory = (currentCategoryId === 'all') || (site.categoryId === currentCategoryId);
-        const matchesQuery = site.name.toLowerCase().includes(query) ||
-                             site.desc.toLowerCase().includes(query) ||
-                             site.tag.toLowerCase().includes(query);
+        // 카테고리 ID 비교 시 양쪽 다 문자열로 변경 + 공백 제거 + 소문자화 (매칭 문제 완벽 해결)
+        const targetCatId = String(currentCategoryId).trim().toLowerCase();
+        const siteCatId = String(site.categoryId || '').trim().toLowerCase();
+
+        const matchesCategory = (targetCatId === 'all') || (siteCatId === targetCatId);
+        
+        // 검색어 필터링
+        const matchesQuery = (site.name || '').toLowerCase().includes(query) ||
+                             (site.desc || '').toLowerCase().includes(query) ||
+                             (site.tag || '').toLowerCase().includes(query);
 
         return matchesCategory && matchesQuery;
       });
