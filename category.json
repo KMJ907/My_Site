@@ -1,0 +1,27 @@
+[
+  {
+    "id": "portal",
+    "name": "포털",
+    "order": 1
+  },
+  {
+    "id": "dev",
+    "name": "개발",
+    "order": 2
+  },
+  {
+    "id": "media",
+    "name": "미디어",
+    "order": 3
+  },
+  {
+    "id": "ai",
+    "name": "AI",
+    "order": 4
+  },
+  {
+    "id": "productivity",
+    "name": "생산성",
+    "order": 5
+  }
+]
