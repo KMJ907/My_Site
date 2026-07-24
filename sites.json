@@ -4,44 +4,62 @@
     "name": "네이버",
     "url": "https://www.naver.com",
     "desc": "대한민국 대표 검색 포털 및 뉴스, 쇼핑 서비스",
-    "category": "포털",
+    "categoryId": "portal",
     "tag": "검색",
-    "icon": "https://www.google.com/s2/favicons?domain=naver.com&sz=64"
+    "icon": ""
   },
   {
     "id": 2,
     "name": "구글",
     "url": "https://www.google.com",
     "desc": "전 세계 최대 검색 엔진 및 전역 서비스",
-    "category": "포털",
+    "categoryId": "portal",
     "tag": "검색",
-    "icon": "https://www.google.com/s2/favicons?domain=google.com&sz=64"
+    "icon": ""
   },
   {
     "id": 3,
     "name": "GitHub",
     "url": "https://github.com",
     "desc": "소프트웨어 개발, 코드 관리 및 오픈소스 플랫폼",
-    "category": "개발",
-    "tag": "개발",
+    "categoryId": "dev",
+    "tag": "소스코드",
     "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64"
   },
   {
     "id": 4,
-    "name": "유튜브",
-    "url": "https://www.youtube.com",
-    "desc": "글로벌 동영상 스트리밍 및 공유 플랫폼",
-    "category": "미디어",
-    "tag": "영상",
-    "icon": "https://www.google.com/s2/favicons?domain=youtube.com&sz=64"
+    "name": "Stack Overflow",
+    "url": "https://stackoverflow.com",
+    "desc": "전 세계 개발자 질의응답 커뮤니티",
+    "categoryId": "dev",
+    "tag": "QnA",
+    "icon": ""
   },
   {
     "id": 5,
+    "name": "유튜브",
+    "url": "https://www.youtube.com",
+    "desc": "글로벌 동영상 스트리밍 및 공유 플랫폼",
+    "categoryId": "media",
+    "tag": "영상",
+    "icon": ""
+  },
+  {
+    "id": 6,
     "name": "ChatGPT",
     "url": "https://chatgpt.com",
     "desc": "OpenAI 대화형 인공지능 보조 서비스",
-    "category": "생산성",
-    "tag": "AI",
-    "icon": "https://www.google.com/s2/favicons?domain=chatgpt.com&sz=64"
+    "categoryId": "ai",
+    "tag": "인공지능",
+    "icon": ""
+  },
+  {
+    "id": 7,
+    "name": "Notion",
+    "url": "https://www.notion.so",
+    "desc": "노트, 문서 작성, 워크스페이스 올인원 툴",
+    "categoryId": "productivity",
+    "tag": "메모",
+    "icon": ""
   }
 ]
